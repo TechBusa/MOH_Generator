@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -53,7 +53,7 @@
             box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
         }
 
-        input:read-only {
+        input:read-only, textarea:read-only {
             background-color: #f3f4f6; /* gray-100 */
         }
     </style>
@@ -118,12 +118,12 @@
             <div id="conformance-cert-form" class="form-section">
                 <h2 class="text-2xl font-bold mb-6 border-b pb-3 text-navy">Certificate of Conformance Details</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input type="text" id="cc-product-type" placeholder="Product Type" class="p-2 border rounded-md focus:ring-orange-500 focus:border-orange-500">
+                    <select id="cc-product-type" class="p-2 border rounded-md focus:ring-orange-500 focus:border-orange-500"></select>
                     <input type="text" id="cc-batch-number" placeholder="Batch Number" class="p-2 border rounded-md focus:ring-orange-500 focus:border-orange-500">
                     <input type="text" id="cc-issue-date" placeholder="Date of Issue" class="p-2 border rounded-md focus:ring-orange-500 focus:border-orange-500" onfocus="(this.type='date')" onblur="(this.type='text')">
                 </div>
                 <div class="mt-6">
-                    <textarea id="cc-description" rows="3" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" placeholder="Description"></textarea>
+                    <textarea id="cc-description" rows="3" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" placeholder="Description" readonly></textarea>
                 </div>
                 <h3 class="text-xl font-semibold mt-8 mb-4 text-navy">Specifications</h3>
                 <div id="cc-specs-container" class="space-y-4">
@@ -156,10 +156,20 @@
             const logoUpload = document.getElementById('logo-upload');
             const logoPreview = document.getElementById('logo-preview');
             const saveLogoBtn = document.getElementById('save-logo');
+            const ccProductTypeSelect = document.getElementById('cc-product-type');
+            const ccDescriptionTextarea = document.getElementById('cc-description');
 
             // --- Hardcoded Data ---
             const hardcodedLetterhead = `Mohlalefi Engineering PTY Ltd\nReg No-2017/168379/07\n5A Union Road Roxton\nAlberton,Johannesburg\nSouth Africa`;
             const hardcodedBankingDetails = `Acc Holder- MOHLALEFI ENGINEERING PTY LTD\nBank - Standard Bank\nAcc No- 31 028 893 2\nBranch Code- 5937\nSwift Code- SBZAZAJJ`;
+            const productData = {
+                'MRA183000031M': 'AnchorFlex Resin Cable-18mmx3m-5 Bulbs+125x125x5 SDDE+LIW+T/Nut+Seat+Ferrule (150mm Thread)',
+                'LIW404035231P': 'Load Indicator washer 3.5mm x 23mm',
+                'MBP125450001P': 'Bearing Plate 125x125x 4.5mm RDDE',
+                'MSA182003222M': 'Spinning Adaptor-280mm x 32F/Hex-22 M/Hex',
+                'MSA5003222020': 'Spinning Adaptor-500mm x 32F/Hex-22 M/Hex',
+                'MLI402550001P': 'Load indicator 40x40x2.5mm'
+            };
 
             let tempLogoDataUrl = null;
 
@@ -197,6 +207,7 @@
             const prefillPackingList = () => {
                 const fields = {
                     'pl-consignee': 'Mine roof Engineering and Supplies',
+                    'pl-custom-code': 'CU21821777',
                     'pl-vat': '4560280887',
                     'pl-origin': 'RSA',
                     'pl-payment-terms': 'Account',
@@ -212,6 +223,23 @@
                 }
             };
             prefillPackingList();
+
+            // --- Certificate of Conformance Dropdown Logic ---
+            const setupConformanceCertForm = () => {
+                ccProductTypeSelect.innerHTML = '<option value="" selected disabled>Select a Product Type</option>';
+                for (const productCode in productData) {
+                    const option = document.createElement('option');
+                    option.value = productCode;
+                    option.textContent = productCode;
+                    ccProductTypeSelect.appendChild(option);
+                }
+
+                ccProductTypeSelect.addEventListener('change', () => {
+                    const selectedCode = ccProductTypeSelect.value;
+                    ccDescriptionTextarea.value = productData[selectedCode] || '';
+                });
+            };
+            setupConformanceCertForm();
 
             // --- Form Switching ---
             docTypeSelect.addEventListener('change', () => {
@@ -466,3 +494,4 @@
     </script>
 </body>
 </html>
+
